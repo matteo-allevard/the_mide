@@ -32,52 +32,52 @@ Le système est conçu selon des principes **serverless**, **event-driven** et *
 
 ```mermaid
 graph TD
-    subgraph "Clients"
-        A[Utilisateur Discord] --> B[Interaction Discord (Slash Commands)]
-        C[Utilisateur Web] --> D[Application Web Statique S3/CloudFront]
+    subgraph Clients
+        A[Utilisateur Discord] --> B[Interaction Discord]
+        C[Utilisateur Web] --> D[App Web S3/CloudFront]
     end
 
-    subgraph "Couche d'Entrée & Authentification"
-        B --> E[AWS API Gateway REST]
-        D -- "Requêtes API (AJAX/Fetch)" --> F[AWS API Gateway REST / WebSocket?]
-        F -- "Authentification OAuth2" --> G[Lambda: Auth Handler]
-        G --> H[(DynamoDB - Users)]
+    subgraph "Couche d'Entree & Auth"
+        B --> E[API Gateway REST]
+        D --> F[API Gateway REST]
+        F --> G[Lambda: Auth Handler]
+        G --> H[(DynamoDB Users)]
     end
 
-    subgraph "Traitement Asynchrone (Pipeline Cœur)"
+    subgraph "Traitement Asynchrone"
         E --> I[Lambda: Discord Proxy]
         F --> J[Lambda: Web Proxy]
-        I --> K[Amazon EventBridge / SQS]
+        I --> K[EventBridge/SQS]
         J --> K
-        K --> L[Lambda: Worker - Draw Pixel]
-        L --> M[(ElastiCache Valkey - Canvas Chunks)]
-        L --> N[(DynamoDB - Canvas Metadata/Users)]
+        K --> L[Lambda: Worker Draw]
+        L --> M[(ElastiCache Valkey)]
+        L --> N[(DynamoDB Metadata)]
     end
 
-    subgraph "Stockage & Services Supports"
+    subgraph "Stockage & Services"
         M
         N
-        O[(S3 - Snapshots)]
-        P[CloudWatch Logs / Metrics]
+        O[(S3 Snapshots)]
+        P[CloudWatch]
     end
 
-    subgraph "Tâches Planifiées"
-        Q[EventBridge Scheduler] --> R[Lambda: Snapshot Generator]
+    subgraph "Taches Planifiees"
+        Q[EventBridge Scheduler] --> R[Lambda: Snapshot]
         R --> O
     end
 
-    L -- "Logs & Traces" --> P
-    R -- "Logs & Traces" --> P
-    G -- "Logs & Traces" --> P
-    I -- "Logs & Traces" --> P
+    L --> P
+    R --> P
+    G --> P
+    I --> P
 
-    style A fill:#c9f,stroke:#333,stroke-width:2px
-    style C fill:#c9f,stroke:#333,stroke-width:2px
-    style E fill:#f9f,stroke:#333,stroke-width:2px
-    style F fill:#f9f,stroke:#333,stroke-width:2px
-    style K fill:#ff9,stroke:#333,stroke-width:2px
-    style L fill:#9cf,stroke:#333,stroke-width:2px
-    style M fill:#d95,stroke:#333,stroke-width:2px
-    style N fill:#d95,stroke:#333,stroke-width:2px
-    style O fill:#d95,stroke:#333,stroke-width:2px
+    style A fill:#c9f,stroke:#333
+    style C fill:#c9f,stroke:#333
+    style E fill:#f9f,stroke:#333
+    style F fill:#f9f,stroke:#333
+    style K fill:#ff9,stroke:#333
+    style L fill:#9cf,stroke:#333
+    style M fill:#d95,stroke:#333
+    style N fill:#d95,stroke:#333
+    style O fill:#d95,stroke:#333
 ```
