@@ -30,7 +30,7 @@ Le système est conçu selon des principes \*\*serverless\*\*, \*\*event-driven\
 
 
 
-```mermaid
+```mermeid
 
 graph TD
 
@@ -130,3 +130,4 @@ graph TD
 
 &nbsp;   style O fill:#d95,stroke:#333,stroke-width:2px
 
+```
