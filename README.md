@@ -22,7 +22,7 @@ Ce document décrit l'architecture, les choix techniques, la configuration et le
 
 
 
-## 🏗️ Architecture Générale (Vue d'ensemble)
+## Architecture Générale (Vue d'ensemble)
 
 
 
@@ -31,103 +31,53 @@ Le système est conçu selon des principes **serverless**, **event-driven** et *
 
 
 ```mermaid
-
 graph TD
+    subgraph "Clients"
+        A[Utilisateur Discord] --> B[Interaction Discord (Slash Commands)]
+        C[Utilisateur Web] --> D[Application Web Statique S3/CloudFront]
+    end
 
-&nbsp;   subgraph "Clients"
+    subgraph "Couche d'Entrée & Authentification"
+        B --> E[AWS API Gateway REST]
+        D -- "Requêtes API (AJAX/Fetch)" --> F[AWS API Gateway REST / WebSocket?]
+        F -- "Authentification OAuth2" --> G[Lambda: Auth Handler]
+        G --> H[(DynamoDB - Users)]
+    end
 
-&nbsp;       A[Utilisateur Discord] --> B[Interaction Discord (Slash Commands)]
+    subgraph "Traitement Asynchrone (Pipeline Cœur)"
+        E --> I[Lambda: Discord Proxy]
+        F --> J[Lambda: Web Proxy]
+        I --> K[Amazon EventBridge / SQS]
+        J --> K
+        K --> L[Lambda: Worker - Draw Pixel]
+        L --> M[(ElastiCache Valkey - Canvas Chunks)]
+        L --> N[(DynamoDB - Canvas Metadata/Users)]
+    end
 
-&nbsp;       C[Utilisateur Web] --> D[Application Web Statique S3/CloudFront]
+    subgraph "Stockage & Services Supports"
+        M
+        N
+        O[(S3 - Snapshots)]
+        P[CloudWatch Logs / Metrics]
+    end
 
-&nbsp;   end
+    subgraph "Tâches Planifiées"
+        Q[EventBridge Scheduler] --> R[Lambda: Snapshot Generator]
+        R --> O
+    end
 
+    L -- "Logs & Traces" --> P
+    R -- "Logs & Traces" --> P
+    G -- "Logs & Traces" --> P
+    I -- "Logs & Traces" --> P
 
-
-&nbsp;   subgraph "Couche d'Entrée & Authentification"
-
-&nbsp;       B --> E[AWS API Gateway REST]
-
-&nbsp;       D -- "Requêtes API (AJAX/Fetch)" --> F[AWS API Gateway REST / WebSocket?]
-
-&nbsp;       F -- "Authentification OAuth2" --> G[Lambda: Auth Handler]
-
-&nbsp;       G --> H[(DynamoDB - Users)]
-
-&nbsp;   end
-
-
-
-&nbsp;   subgraph "Traitement Asynchrone (Pipeline Cœur)"
-
-&nbsp;       E --> I[Lambda: Discord Proxy]
-
-&nbsp;       F --> J[Lambda: Web Proxy]
-
-&nbsp;       I --> K[Amazon EventBridge / SQS]
-
-&nbsp;       J --> K
-
-&nbsp;       K --> L[Lambda: Worker - Draw Pixel]
-
-&nbsp;       L --> M[(ElastiCache Valkey - Canvas Chunks)]
-
-&nbsp;       L --> N[(DynamoDB - Canvas Metadata/Users)]
-
-&nbsp;   end
-
-
-
-&nbsp;   subgraph "Stockage & Services Supports"
-
-&nbsp;       M
-
-&nbsp;       N
-
-&nbsp;       O[(S3 - Snapshots)]
-
-&nbsp;       P[CloudWatch Logs / Metrics]
-
-&nbsp;   end
-
-
-
-&nbsp;   subgraph "Tâches Planifiées"
-
-&nbsp;       Q[EventBridge Scheduler] --> R[Lambda: Snapshot Generator]
-
-&nbsp;       R --> O
-
-&nbsp;   end
-
-
-
-&nbsp;   L -- "Logs & Traces" --> P
-
-&nbsp;   R -- "Logs & Traces" --> P
-
-&nbsp;   G -- "Logs & Traces" --> P
-
-&nbsp;   I -- "Logs & Traces" --> P
-
-
-
-&nbsp;   style A fill:#c9f,stroke:#333,stroke-width:2px
-
-&nbsp;   style C fill:#c9f,stroke:#333,stroke-width:2px
-
-&nbsp;   style E fill:#f9f,stroke:#333,stroke-width:2px
-
-&nbsp;   style F fill:#f9f,stroke:#333,stroke-width:2px
-
-&nbsp;   style K fill:#ff9,stroke:#333,stroke-width:2px
-
-&nbsp;   style L fill:#9cf,stroke:#333,stroke-width:2px
-
-&nbsp;   style M fill:#d95,stroke:#333,stroke-width:2px
-
-&nbsp;   style N fill:#d95,stroke:#333,stroke-width:2px
-
-&nbsp;   style O fill:#d95,stroke:#333,stroke-width:2px
-
+    style A fill:#c9f,stroke:#333,stroke-width:2px
+    style C fill:#c9f,stroke:#333,stroke-width:2px
+    style E fill:#f9f,stroke:#333,stroke-width:2px
+    style F fill:#f9f,stroke:#333,stroke-width:2px
+    style K fill:#ff9,stroke:#333,stroke-width:2px
+    style L fill:#9cf,stroke:#333,stroke-width:2px
+    style M fill:#d95,stroke:#333,stroke-width:2px
+    style N fill:#d95,stroke:#333,stroke-width:2px
+    style O fill:#d95,stroke:#333,stroke-width:2px
 ```
