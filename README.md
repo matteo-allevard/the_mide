@@ -70,14 +70,4 @@ graph TD
     R --> P
     G --> P
     I --> P
-
-    style A fill:#c9f,stroke:#333
-    style C fill:#c9f,stroke:#333
-    style E fill:#f9f,stroke:#333
-    style F fill:#f9f,stroke:#333
-    style K fill:#ff9,stroke:#333
-    style L fill:#9cf,stroke:#333
-    style M fill:#d95,stroke:#333
-    style N fill:#d95,stroke:#333
-    style O fill:#d95,stroke:#333
 ```
