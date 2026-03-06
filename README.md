@@ -1,58 +1,58 @@
-\# C3: Cloud-Native \& Serverless - Collaborative Pixel Canvas (r/place Clone)
+# C3: Cloud-Native & Serverless - Collaborative Pixel Canvas (r/place Clone)
 
 
 
-\## 🎨 Présentation du Projet
+## Présentation du Projet
 
 
 
-Bienvenue dans la documentation officielle du projet \*\*C3\*\*. Ce projet a pour objectif de concevoir et d'implémenter un prototype fonctionnel d'une plateforme de dessin collaboratif multijoueur, entièrement serverless et inspirée de Reddit's r/place.
+Bienvenue dans la documentation officielle du projet **C3**. Ce projet a pour objectif de concevoir et d'implémenter un prototype fonctionnel d'une plateforme de dessin collaboratif multijoueur, entièrement serverless et inspirée de Reddit's r/place.
 
 
 
 Les utilisateurs peuvent dessiner des pixels sur un canevas partagé via :
 
-\*   Un bot Discord (commandes slash).
+*   Un bot Discord (commandes slash).
 
-\*   Une interface web interactive.
-
-
-
-Ce document décrit l'architecture, les choix techniques, la configuration et le déploiement de la solution sur \*\*Amazon Web Services (AWS)\*\*.
+*   Une interface web interactive.
 
 
 
-\## 🏗️ Architecture Générale (Vue d'ensemble)
+Ce document décrit l'architecture, les choix techniques, la configuration et le déploiement de la solution sur **Amazon Web Services (AWS)**.
 
 
 
-Le système est conçu selon des principes \*\*serverless\*\*, \*\*event-driven\*\* et \*\*asynchrones\*\*. Toutes les interactions passent par une couche d'API Gateway, puis sont traitées de manière découplée via des files d'attente et des fonctions Lambda.
+## 🏗️ Architecture Générale (Vue d'ensemble)
 
 
 
-```mermeid
+Le système est conçu selon des principes **serverless**, **event-driven** et **asynchrones**. Toutes les interactions passent par une couche d'API Gateway, puis sont traitées de manière découplée via des files d'attente et des fonctions Lambda.
+
+
+
+```mermaid
 
 graph TD
 
 &nbsp;   subgraph "Clients"
 
-&nbsp;       A\[Utilisateur Discord] --> B\[Interaction Discord (Slash Commands)]
+&nbsp;       A[Utilisateur Discord] --> B[Interaction Discord (Slash Commands)]
 
-&nbsp;       C\[Utilisateur Web] --> D\[Application Web Statique S3/CloudFront]
+&nbsp;       C[Utilisateur Web] --> D[Application Web Statique S3/CloudFront]
 
 &nbsp;   end
 
 
 
-&nbsp;   subgraph "Couche d'Entrée \& Authentification"
+&nbsp;   subgraph "Couche d'Entrée & Authentification"
 
-&nbsp;       B --> E\[AWS API Gateway REST]
+&nbsp;       B --> E[AWS API Gateway REST]
 
-&nbsp;       D -- "Requêtes API (AJAX/Fetch)" --> F\[AWS API Gateway REST / WebSocket?]
+&nbsp;       D -- "Requêtes API (AJAX/Fetch)" --> F[AWS API Gateway REST / WebSocket?]
 
-&nbsp;       F -- "Authentification OAuth2" --> G\[Lambda: Auth Handler]
+&nbsp;       F -- "Authentification OAuth2" --> G[Lambda: Auth Handler]
 
-&nbsp;       G --> H\[(DynamoDB - Users)]
+&nbsp;       G --> H[(DynamoDB - Users)]
 
 &nbsp;   end
 
@@ -60,33 +60,33 @@ graph TD
 
 &nbsp;   subgraph "Traitement Asynchrone (Pipeline Cœur)"
 
-&nbsp;       E --> I\[Lambda: Discord Proxy]
+&nbsp;       E --> I[Lambda: Discord Proxy]
 
-&nbsp;       F --> J\[Lambda: Web Proxy]
+&nbsp;       F --> J[Lambda: Web Proxy]
 
-&nbsp;       I --> K\[Amazon EventBridge / SQS]
+&nbsp;       I --> K[Amazon EventBridge / SQS]
 
 &nbsp;       J --> K
 
-&nbsp;       K --> L\[Lambda: Worker - Draw Pixel]
+&nbsp;       K --> L[Lambda: Worker - Draw Pixel]
 
-&nbsp;       L --> M\[(ElastiCache Valkey - Canvas Chunks)]
+&nbsp;       L --> M[(ElastiCache Valkey - Canvas Chunks)]
 
-&nbsp;       L --> N\[(DynamoDB - Canvas Metadata/Users)]
+&nbsp;       L --> N[(DynamoDB - Canvas Metadata/Users)]
 
 &nbsp;   end
 
 
 
-&nbsp;   subgraph "Stockage \& Services Supports"
+&nbsp;   subgraph "Stockage & Services Supports"
 
 &nbsp;       M
 
 &nbsp;       N
 
-&nbsp;       O\[(S3 - Snapshots)]
+&nbsp;       O[(S3 - Snapshots)]
 
-&nbsp;       P\[CloudWatch Logs / Metrics]
+&nbsp;       P[CloudWatch Logs / Metrics]
 
 &nbsp;   end
 
@@ -94,7 +94,7 @@ graph TD
 
 &nbsp;   subgraph "Tâches Planifiées"
 
-&nbsp;       Q\[EventBridge Scheduler] --> R\[Lambda: Snapshot Generator]
+&nbsp;       Q[EventBridge Scheduler] --> R[Lambda: Snapshot Generator]
 
 &nbsp;       R --> O
 
@@ -102,13 +102,13 @@ graph TD
 
 
 
-&nbsp;   L -- "Logs \& Traces" --> P
+&nbsp;   L -- "Logs & Traces" --> P
 
-&nbsp;   R -- "Logs \& Traces" --> P
+&nbsp;   R -- "Logs & Traces" --> P
 
-&nbsp;   G -- "Logs \& Traces" --> P
+&nbsp;   G -- "Logs & Traces" --> P
 
-&nbsp;   I -- "Logs \& Traces" --> P
+&nbsp;   I -- "Logs & Traces" --> P
 
 
 
