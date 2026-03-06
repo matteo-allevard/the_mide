@@ -2,7 +2,7 @@
 
 
 
-## 🎯 Objectif
+## Objectif
 
 
 
@@ -10,7 +10,7 @@ Définir une architecture cloud native qui respecte les contraintes serverless, 
 
 
 
-## 📦 Services AWS Utilisés
+## Services AWS Utilisés
 
 
 
@@ -38,7 +38,7 @@ Définir une architecture cloud native qui respecte les contraintes serverless, 
 
 
 
-## 🔁 Flux de Données Détaillé
+## Flux de Données Détaillé
 
 
 
