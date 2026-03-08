@@ -1,0 +1,20 @@
+{
+  "name": "javascript_bot_handler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1003.0",
+    "@aws-sdk/client-s3": "^3.1003.0",
+    "@aws-sdk/client-sqs": "^3.1003.0",
+    "@aws-sdk/lib-dynamodb": "^3.1003.0",
+    "discord-interactions": "^4.4.0"
+  }
+}
